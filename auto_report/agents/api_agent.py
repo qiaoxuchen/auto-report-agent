@@ -10,7 +10,7 @@ class LarkDataAgent:
         self.config = config
         self.app_id = config.get('app_id')
         self.app_secret = config.get('app_secret')
-        self.data_aggregator = data_aggregator
+        self.data_aggregator = data_aggregator # 用于存储数据
         self.client = None
         if self.app_id and self.app_secret:
             self.client = lark.Client.builder() \
@@ -61,6 +61,7 @@ class LarkDataAgent:
             {"summary": "团队周会", "description": "", "start_time": "2023-10-28T09:30:00+08:00", "end_time": "2023-10-28T10:30:00+08:00"}
         ]
         for event in events:
+            # 注意：这里调用的是 DataAggregator 的 add_data 方法，source为 'lark_calendar'
             self.data_aggregator.add_data('lark_calendar', event)
 
     def fetch_recent_messages_mock(self):
@@ -72,6 +73,7 @@ class LarkDataAgent:
              {"chat_name": "技术分享", "content": "分享一个关于Python性能优化的链接。", "create_time": "2023-10-27T16:45:00+08:00"}
          ]
          for msg in messages:
+             # 注意：这里调用的是 DataAggregator 的 add_data 方法，source为 'lark_message'
              self.data_aggregator.add_data('lark_message', msg)
 
     def fetch_data(self):
@@ -86,4 +88,9 @@ class LarkDataAgent:
         self.fetch_recent_messages_mock() # 示例
         logger.info("Lark data fetch cycle completed (mock).")
 
-    # 如果需要定时获取Lark数据，可以在scheduler.py中添加一个定时任务调用 self.fetch_data
+    # 如果需要定时获取Lark数据，可以在 main.py 或 scheduler.py 中添加一个定时任务调用 self.fetch_data
+    # 例如，可以添加一个方法：
+    # def start_periodic_fetch(self, scheduler):
+    #     interval = self.config.get('fetch_interval', 3600) # 默认1小时
+    #     scheduler.add_job(self.fetch_data, 'interval', seconds=interval, id='lark_fetch_job')
+    # 然后在 main.py 中调用 agent.start_periodic_fetch(scheduler)

@@ -39,14 +39,11 @@ class FileMonitorAgent:
         logger.info(f"FileMonitorAgent initialized for path: {self.watch_path}")
 
     def _log_event_to_aggregator(self, event_info):
-        """记录文件事件到聚合器和日志文件"""
-        # 写入本地日志文件 (可选，便于调试)
-        with open(self.log_file_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(event_info) + '\n')
-
-        # 添加到数据聚合器
+        """记录文件事件到聚合器 (不再写入单独的日志文件)"""
+        # 直接添加到数据聚合器
+        # 注意：这里调用的是 DataAggregator 的 add_data 方法
         self.data_aggregator.add_data('file', event_info)
-        logger.info(f"File event logged: {event_info['event_type']} - {event_info['src_path']}")
+        logger.info(f"File event logged to aggregator: {event_info['event_type']} - {event_info['src_path']}")
 
     def start_monitoring(self):
         """启动文件监控"""

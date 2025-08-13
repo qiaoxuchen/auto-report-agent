@@ -2,9 +2,9 @@
 import os
 import time
 import logging
+from PIL import ImageGrab # 或使用 DXcam
 import pytesseract
 from datetime import datetime
-from PIL import ImageGrab
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ class ScreenCaptureAgent:
     def __init__(self, config, data_aggregator):
         self.config = config
         self.interval = config.get('interval', 300)
-        self.output_dir = config.get('output_dir', './screenshots')
+        self.output_dir = config.get('output_dir', './data/screenshots')
         self.data_aggregator = data_aggregator
         os.makedirs(self.output_dir, exist_ok=True)
         logger.info(f"ScreenCaptureAgent initialized with interval {self.interval}s, output to {self.output_dir}")
@@ -32,10 +32,11 @@ class ScreenCaptureAgent:
             logger.debug(f"OCR Text extracted (first 100 chars): {text[:100]}...")
 
             # 将分析结果存入数据聚合器
+            # 注意：这里调用的是 DataAggregator 的 add_data 方法
             analysis_result = {
                 "filename": filename,
                 "timestamp": datetime.now().isoformat(),
-                "extracted_text_snippet": text[:200] # 仅存片段
+                "extracted_text_snippet": text[:500] # 增加一点长度，供分析使用
             }
             self.data_aggregator.add_data('screen', analysis_result)
 

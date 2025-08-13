@@ -1,37 +1,84 @@
 # AutoReport Agent 配置文件模板
 # 请复制此文件为 config.yaml 并填写实际值
 
-screen_capture:
-  enabled: true
-  interval: 300 # 截图间隔 (秒)
-  output_dir: "./data/screenshots"
+# --- 核心配置 ---
+core:
+  # 报告输出目录
+  report_output_dir: "./data/reports"
+  # 日志配置
+  logging:
+    level: INFO
+    file: "./data/logs/autoreport.log"
 
-file_monitor:
-  enabled: true
-  watch_path: "/app/workdir" # Docker容器内的挂载点
+# --- 数据采集模块 ---
+data_sources:
 
-lark:
-  enabled: false # 启用飞书集成
-  app_id: "YOUR_LARK_APP_ID"
-  app_secret: "YOUR_LARK_APP_SECRET"
-  # 注意：获取用户数据需要用户授权，此处仅为应用级API示例
+  # 屏幕监控与OCR分析
+  screen_capture:
+    enabled: true
+    interval: 300 # 截图间隔 (秒)
+    output_dir: "./data/screenshots"
 
-email:
-  enabled: true
-  smtp_server: "smtp.gmail.com" # 示例Gmail SMTP
-  smtp_port: 587
-  sender_email: "youremail@gmail.com"
-  sender_password: "your_app_password_or_token" # Gmail需要应用专用密码
-  recipient_email: "recipient@example.com"
+  # 工作目录文件系统监控
+  file_monitor:
+    enabled: true
+    watch_path: "/app/workdir" # Docker容器内的挂载点 (请修改为您的本地路径)
 
-report:
-  template_path: "./src/templates/report_template.j2"
-  output_dir: "./data/reports"
-  schedule:
-    daily: "0 18 * * *" # 每天18:00生成并发送日报 [[12]]
-    weekly: "0 17 * * 5" # 每周五17:00生成并发送周报 [[12]]
+  # 本地文档内容读取
+  document_reader:
+    enabled: true
+    watch_path: "./data/documents" # 指向包含文档的本地目录
+    supported_extensions: [".txt", ".md", ".log", ".py", ".js", ".java", ".cpp", ".c", ".h", ".sql", ".html", ".css"]
+    # 定时扫描间隔 (秒) - 如果设为0或负数，则只在启动时扫描一次
+    scan_interval: 3600 # 每小时扫描一次
 
-# 日志配置
-logging:
-  level: INFO
-  file: "./data/logs/autoreport.log"
+  # 第三方API集成 (示例: 飞书)
+  third_party_apis:
+    lark:
+      enabled: false # 启用飞书集成
+      app_id: "YOUR_LARK_APP_ID"
+      app_secret: "YOUR_LARK_APP_SECRET"
+      # 注意：获取用户数据需要用户授权，此处仅为应用级API示例
+
+# --- 大语言模型 (LLM) 配置 ---
+llm:
+  enabled: true # 启用大模型功能 (核心功能，建议开启)
+  api_key: "YOUR_ZHIPUAI_API_KEY" # 智谱AI API Key
+  model: "glm-4-plus" # 使用的模型名称
+  base_url: "https://open.bigmodel.cn/api/paas/v4/chat/completions" # GLM API地址
+  timeout: 120 # API调用超时时间(秒)
+
+# --- 报告分析与生成 ---
+analysis:
+  # 报告类型配置
+  report_types:
+    daily:
+      enabled: true
+      schedule: "0 18 * * *" # 每天18:00生成
+      description: "日报"
+    weekly:
+      enabled: true
+      schedule: "0 17 * * 5" # 每周五17:00生成
+      description: "周报"
+    monthly:
+      enabled: true
+      schedule: "0 16 1 * *" # 每月1日16:00生成
+      description: "月报"
+    quarterly:
+      enabled: false # 可选
+      schedule: "0 15 1 1,4,7,10 *" # 每季度第一天
+      description: "季报"
+    yearly:
+      enabled: false # 可选
+      schedule: "0 14 31 12 *" # 每年12月31日
+      description: "年报"
+
+# --- 通知与分发 ---
+notifications:
+  email:
+    enabled: true
+    smtp_server: "smtp.gmail.com" # 示例Gmail SMTP
+    smtp_port: 587
+    sender_email: "youremail@gmail.com"
+    sender_password: "your_app_password_or_token" # Gmail需要应用专用密码
+    recipient_email: "recipient@example.com"

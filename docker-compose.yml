@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  autoreport-agent:
+    # 构建镜像 (将使用 Dockerfile 中指定的 Python 3.11)
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autoreport-agent
+    volumes:
+      # 挂载配置文件目录
+      - ./config:/app/config:ro
+      # 挂载数据目录
+      - ./data:/app/data
+      # 挂载需要监控的工作目录 (请根据实际情况修改宿主机路径)
+      - ./example_workdir:/app/workdir:ro
+      # 挂载包含待分析文档的目录 (请根据实际情况修改宿主机路径)
+      - ./data/documents:/app/data/documents:ro
+    environment:
+      # 设置时区
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+    # network_mode: "host" # (可选) 如果需要访问宿主机网络
