@@ -1,0 +1,37 @@
+# AutoReport Agent 配置文件模板
+# 请复制此文件为 config.yaml 并填写实际值
+
+screen_capture:
+  enabled: true
+  interval: 300 # 截图间隔 (秒)
+  output_dir: "../data/screenshots"
+
+file_monitor:
+  enabled: true
+  watch_path: "../data" # Docker容器内的挂载点
+
+lark:
+  enabled: false # 启用飞书集成
+  app_id: "YOUR_LARK_APP_ID"
+  app_secret: "YOUR_LARK_APP_SECRET"
+  # 注意：获取用户数据需要用户授权，此处仅为应用级API示例
+
+email:
+  enabled: true
+  smtp_server: "smtp.gmail.com" # 示例Gmail SMTP
+  smtp_port: 587
+  sender_email: "youremail@gmail.com"
+  sender_password: "your_app_password_or_token" # Gmail需要应用专用密码
+  recipient_email: "recipient@example.com"
+
+report:
+  template_path: "./templates/report_template.j2"
+  output_dir: "../data/reports"
+  schedule:
+    daily: "0 18 * * *" # 每天18:00生成并发送日报 [[12]]
+    weekly: "0 17 * * 5" # 每周五17:00生成并发送周报 [[12]]
+
+# 日志配置
+logging:
+  level: INFO
+  file: "../data/logs/autoreport.log"

@@ -1,0 +1,19 @@
+{{ type }} - {{ date }}
+
+自动生成的工作报告
+
+---
+
+**内容摘要:**
+
+{% for source, data_points in content.items() %}
+{% if data_points %}
+**数据来源: {{ source }}**
+    {% for item in data_points %}
+    - {{ item }}
+    {% endfor %}
+{% endif %}
+{% endfor %}
+
+---
+报告生成时间: {{ generated_at }}
