@@ -1,7 +1,11 @@
 # src/core/scheduler.py
 import logging
+from datetime import datetime
+
+from apscheduler.triggers.date import DateTrigger
 
 logger = logging.getLogger(__name__)
+
 
 def setup_schedulers(scheduler, screen_agent, file_agent, document_agent, lark_agent, analyzer_agent, config):
     """设置所有定时任务，根据配置开关决定是否启用"""
@@ -24,15 +28,22 @@ def setup_schedulers(scheduler, screen_agent, file_agent, document_agent, lark_a
                     logger.error(f"Invalid cron expression for {report_type}: {cron_expr}")
                     continue
 
+                job_id = f'{report_type}_analysis_job'
+                job_args = [report_type, report_config.get('description', report_type)]  # 传递类型和描述
                 # 为每个启用的报告类型添加一个调度任务
                 scheduler.add_job(
                     # 调用 analyzer_agent 的通用分析方法，并传入报告类型
                     analyzer_agent.analyze_and_report, 'cron',
                     minute=cron_parts[0], hour=cron_parts[1], day=cron_parts[2],
                     month=cron_parts[3], day_of_week=cron_parts[4],
-                    id=f'{report_type}_analysis_job',
-                    args=[report_type, report_config.get('description', report_type)] # 传递类型和描述
+                    id=job_id,
+                    args=job_args
                 )
+                # 启动进行日报、周报、月报...数据分析
+                # scheduler.add_job(
+                #     analyzer_agent.analyze_and_report, DateTrigger(run_date=datetime.now()),
+                #     id=job_id, args=job_args
+                # )
                 logger.info(f"{report_config.get('description', report_type)} analysis job scheduled: {cron_expr}")
 
     except Exception as e:

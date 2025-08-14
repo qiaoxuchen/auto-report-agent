@@ -27,7 +27,7 @@ data_sources:
   # 本地文档内容读取
   document_reader:
     enabled: true
-    watch_path: "./data/documents" # 指向包含文档的本地目录
+    watch_path: "../documents" # 指向包含文档的本地目录
     supported_extensions: [".txt", ".md", ".log", ".py", ".js", ".java", ".cpp", ".c", ".h", ".sql", ".html", ".css"]
     # 定时扫描间隔 (秒) - 如果设为0或负数，则只在启动时扫描一次
     scan_interval: 3600 # 每小时扫描一次
